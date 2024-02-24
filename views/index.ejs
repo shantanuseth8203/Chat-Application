@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Document</title>
+   </head>
+
+   <body>
+      <h1>Chatting.... inside <%= groupName %>
+      </h1>
+
+      <input type="text" id="input">
+
+      <button id="btn">
+         Send
+      </button>
+
+      <ul id="msg_list">
+         <% for (let i = 0; i < previousChats.length; i++) %>
+            <% { %>
+               <li>
+                  <%= previousChats[i].sender + " : " + previousChats[i].content %>
+               </li>
+               <li>
+                  <%= previousChats[1].sender + " : " + previousChats[1].content %>
+               </li>
+            <% } %>
+      </ul>
+
+      <script src="/socket.io/socket.io.js"></script>
+      <script>
+         var socket = io();
+
+         let send = document.getElementById("btn");
+         let msg_list = document.getElementById("msg_list");
+         let input = document.getElementById("input");
+
+         //whenever we render page, we will join a room
+
+         socket.emit('join-room', { roomID: '<%= roomID %>' })
+
+         send.addEventListener("click", () => {
+            let msg = input.value;
+            socket.emit("new-msg", {
+               message: msg,
+               roomID: '<%= roomID %>',
+               user: '<%= user %>'
+            });
+            input.value = "";
+         });
+
+         socket.on("msg-rcvd", (data) => {
+            let li = document.createElement("li");
+            li.textContent = data.user + " : " + data.message;
+            msg_list.appendChild(li);
+         });
+      </script>
+   </body>
+
+</html>
